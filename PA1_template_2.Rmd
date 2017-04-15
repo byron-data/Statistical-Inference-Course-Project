@@ -1,0 +1,109 @@
+---
+title: "Statistical Inference Course Project - Part 2"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+Prepared by Byron Stuart
+
+## Overview
+
+Basic inferential data analysis, analyze the ToothGrowth data in the R datasets package.
+    
+### 1. Load the ToothGrowth data and perform some basic exploratory data analyses
+
+```{r, echo=TRUE}
+data(ToothGrowth)
+head(ToothGrowth)
+str(ToothGrowth)
+
+# Convert to factor for boxplot
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+```
+
+### 2. Provide a basic summary of the data.
+
+```{r, echo=TRUE}
+summary(ToothGrowth)
+library(ggplot2)
+```
+
+#### Further Analysis
+
+```{r, echo=TRUE}
+# t test impact on length by supplement
+t.test(len ~ supp, ToothGrowth)
+```
+
+#### The p-value 0.06 is greater than an alpha of 0.05 (95% confidence interval) and the difference in the means spans 0 so we cannot say that one supplement is better than another
+
+```{r, echo=TRUE}
+graph <- ggplot(ToothGrowth, aes(x=supp, y=len)) + 
+    geom_boxplot(aes(fill=supp)) +
+    ylab("Length")  +
+    xlab("Supp") +
+    ggtitle("Length by Supplement")
+graph
+```
+
+#### Based on averages alone OJ has longer lengths than VC but more investigation is required
+
+```{r, echo=TRUE}
+graph <- ggplot(ToothGrowth, aes(x=dose, y=len)) + 
+    geom_boxplot(aes(fill=dose)) +
+    ylab("Length")  +
+    xlab("Dose") +
+    ggtitle("Length by Dose")
+graph
+```
+
+#### Considering both supplements the higher the dose the higher the average length is
+
+### 3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose.
+
+#### 3a. Perform a two sample t test of OJ and VC
+
+```{r, echo=TRUE}
+t.test(len ~ supp, data=ToothGrowth, paired=FALSE, var.equal=FALSE)
+```
+
+#### The p-value 0.06 is greater than an alpha of 0.05 (95% confidence interval) and the difference in the means spans 0 hence the Null Hypothesis is "Failed to Reject", that is we cannot see a significant difference between supplements.
+
+#### 3b. Perform a two sample t test at each dosage for OJ and VC (3 test results follow)
+
+```{r, echo=TRUE}
+t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == .5, ])
+t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == 1, ])
+```
+
+#### At doses of 0.5 and 1 the p-value is less than an alpha of 0.05 (95% confidence interval) and the difference in the means does not span 0 hence the Null Hypothesis is "Rejected", that is we can see a significant difference between supplements.
+
+```{r, echo=TRUE}
+t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == 2, ])
+```
+
+#### At a dose of 2 the p-value is greater than an alpha of 0.05 (95% confidence interval) and the difference in the means spans 0 hence the Null Hypothesis is "Failed to Reject", that is we cannot see a significant difference between supplements.
+
+#### 3c. Perform separate two sample t test comparing doses of: 0.5 and 1; 1 and 2.
+
+```{r, echo=TRUE}
+t.test(ToothGrowth$len[ToothGrowth$dose==0.5], ToothGrowth$len[ToothGrowth$dose==1], paired=FALSE, var.equal=FALSE)
+t.test(ToothGrowth$len[ToothGrowth$dose==1], ToothGrowth$len[ToothGrowth$dose==2], paired=FALSE, var.equal=FALSE)
+```
+
+#### For each of the 2 tests above the p-value is less than an alpha of 0.05 (95% confidence interval) and the difference in the means does not span 0. Hence the Null Hypothesis is "Rejected" in both cases showing there is a significant difference in length for higher doses of supplements. There is no need to test the difference between 0.5 and 2 given the above results.
+
+### 4. State your conclusions and the assumptions needed for your conclusions.
+
+#### Conclusions
+1. Looking at all doses there is no significant difference in length for different supplements. This is based on the results of the t tests in section 3a.
+
+2. Looking at both supplements there is significant difference in length for higher doses. This is based on the results of the t tests in section 3b.
+
+3. Looking at the combined impact of supplement and dose there is significant difference in length for OJ compared to VC at a dose of 0.5mg and 1mg. At a dose of 2mg there is no significant difference in length between OJ and VC. In section 3c the t tests show that doses of 0.5mg and 1.0mg produce statistically significant p-values, indicating OJ outperforms VC. A dose of 2mg does not produce a statistically significant p-value indicating we cannot say whether OJ or VC are better.
+
+#### Assumptions
+1. The data follows a T distribution
+2. The Data is derived from samples that are representative of the population
+3. Variances between populations are different

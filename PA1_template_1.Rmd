@@ -1,0 +1,84 @@
+---
+title: "Statistical Inference Course Project - Part 1"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+Prepared by Byron Stuart
+
+## Overview
+
+Investigate the exponential distribution in R and compare it with the Central Limit Theorem (CLT). According to the CLT the distribution of sample means follow normal distribution.
+
+Investigate the distribution of averages of 40 exponentials for a thousand simulations.
+
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.
+
+## Simulations
+
+The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda.
+
+```{r, echo=TRUE}
+# Set the parameters
+lambda <- 0.2
+number <- 40
+simulations <- 1000
+
+# Generate 1000 simulations
+exponentialDist <- replicate(simulations, mean(rexp(number, lambda)))
+```
+
+### Sample Mean versus Theoretical Mean
+
+```{r, echo=TRUE}
+# Calculate the simulated mean and the expected mean
+mean <- mean(exponentialDist); mean
+expectedMean <- 1/lambda; expectedMean
+
+# Histogram of the simulated data
+hist(exponentialDist, main="Mean Exponential Distribution", xlab="Means", breaks=40)
+
+# Plot vertical line at the expected mean
+abline(v=mean(exponentialDist), lwd="3", col="red")
+text(4.5, 50, paste("Theoretical Mean =", expectedMean), pos = 2, col="red")
+text(4.5, 45, paste("Mean =", round(mean,3)), pos = 2, col="blue")
+```
+
+#### Conclusion: The sample mean and theoretical mean are almost identical
+
+### Sample Variance versus Theoretical Variance
+
+```{r, echo=TRUE}
+# Calculate the simulated standard error of the mean and compare it to the theoretical standard error
+sd(exponentialDist); 1/(lambda*sqrt(number))
+
+# Calculate the simulated variance of the mean and compare it to the theoretical variance
+var(exponentialDist); 1/((lambda^2)*number)
+
+# Compare the variance of 40 exponentials to a normal distribution
+qqnorm(exponentialDist, col="blue")
+qqline(exponentialDist, col=2)
+legend("topleft", legend=c("Simulated", "Normal Distribution"), col=c("blue", "red"), pch=c(1, NA), lty=c(1,1), lwd=c(NA,3))
+```
+
+#### Conclusion: The sample variance and theoretical variance are almost identical
+
+#### As per the CLT as the number of iterations increases the standard error and variance of the mean move closer to the theoretical values
+
+### Distribution
+
+```{r, echo=TRUE}
+hist(exponentialDist, prob=TRUE, main="Mean Exponential Distribution", xlab="Means", breaks=40)
+lines(density(exponentialDist), lwd=3, col="red")
+
+# Add a Normal Curve
+xfit<-seq(min(exponentialDist), max(exponentialDist), length=40)
+yfit = dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(number)))
+# yfit<-dnorm(xfit, mean=mean(exponentialDist), sd=sd(exponentialDist))
+lines(xfit, yfit, col="blue", lwd=3)
+
+legend("topright", legend=c("Means", "Normal Distribution"), col=c("red", "blue"), lty=c(1,1), lwd=c(3,3))
+```
+
+#### Conclusion: The distribution of the means closely matches a normal distribution, according to the central limit theorem (CLT) the distribution of averages of 40 exponentials is very close to a normal distribution.
