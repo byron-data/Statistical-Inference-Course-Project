@@ -1,5 +1,5 @@
 # Statistical Inference Course Project
-Statistical Inference by Johns Hopkins University on Coursera Course Project
+Statistical Inference by Johns Hopkins University on Coursera
 
 ## Method
 Content was created with R code and markdown that was put into files in "Rmd" format and then "html" files were generated from RStudio.
